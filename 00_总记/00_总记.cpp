@@ -163,3 +163,13 @@ int main()
 // 3.使用Interface classes来制作handle class，调用的时候用智能指针便可实现内存自动管理
 // 4.要使Interface classes能够实例化，可以采用在这个接口内定义一个static的工厂性质的create方法返回这个接口的指针
 // ，后面再根据实现这个接口的derived class动态返回所需要对象
+
+//32.public继承一定要是is-a的关系
+// 1.public主张继承，能够实施于base class对象身上的每件事情都能实施于derived class身上
+// 2.class之间的关系:is-a has-a is-implemented-in-terms-of
+// 
+
+//33.避免隐藏继承而来的名称
+// 1.详情参见Test_Cpps_26_01
+// 2.如果正在使用public继承却有不继承那些重载函数，就是违背了is-a的关系
+// 3.using或者转交函数可以实现访问被屏蔽的父类函数

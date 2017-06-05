@@ -29,6 +29,7 @@ int main()
 
 	Widget aWidget;
 	if(hasAcceptableQuality(aWidget)){} ////copy constructor,传值的时候产生了新对象
+	
 
 	system("pause");
 	return 0;
