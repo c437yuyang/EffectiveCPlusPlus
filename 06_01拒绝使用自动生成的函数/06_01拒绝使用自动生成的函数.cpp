@@ -21,7 +21,7 @@ private:
 	UnCopyable& operator=(const UnCopyable&);
 };
 
-class Derived:private UnCopyable{}; //现在子类只要继承自这个类就可以了
+class Derived:private UnCopyable{}; //现在子类只要private继承自这个类就可以了，因为父类如果没有copying函数的话，子类的无法处理父类的成员部分
 
 int main()
 {
