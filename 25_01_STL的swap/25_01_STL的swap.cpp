@@ -7,14 +7,15 @@
 using namespace std;
 
 namespace SCU_YXP {
-	class TestClass
+	class Widget
 	{
 	public:
-		TestClass();
-		~TestClass();
-		void swap(TestClass &other) {
-			using std::swap; //个人认为这里就应该直接在下面确定调用std::swap
-			swap(pIvec, other.pIvec);
+		Widget();
+		~Widget();
+		void swap(Widget &rhs) 
+		{
+			//using std::swap; //个人认为这里就应该直接在下面确定调用std::swap,是对的
+			std::swap(pIvec, rhs.pIvec);
 		}
 	private:
 
@@ -22,16 +23,17 @@ namespace SCU_YXP {
 
 	};
 
-	TestClass::TestClass()
+	Widget::Widget()
 	{
 		pIvec = new vector<int>(10, 0);
 	}
 
-	TestClass::~TestClass()
+	Widget::~Widget()
 	{
 	}
 
-	void swap(TestClass &lhs, TestClass &rhs) {
+	void swap(Widget &lhs, Widget &rhs) 
+	{
 		lhs.swap(rhs);
 	}
 
@@ -40,8 +42,10 @@ namespace SCU_YXP {
 
 
 namespace std {
-	template<> //为std::swap针对TestClass给出专门版本
-	void swap<SCU_YXP::TestClass>(SCU_YXP::TestClass &lhs, SCU_YXP::TestClass &rhs) {
+	using SCU_YXP::Widget;
+	template<> //为std::swap针对Widget给出专门版本（特化）
+	void swap<Widget>(Widget &lhs, Widget &rhs)
+	{
 		lhs.swap(rhs);
 	}
 }
@@ -53,8 +57,13 @@ int main()
 	vector<int> iVec2 = { 5,6,7 };
 	iVec1.swap(iVec2); //可以看源码就知道内部也是调用的std::swap实现的
 
+	int i = 0;
+	int j = 1;
+	std::swap(i, j); //可以直接实现交换，内部传的是引用
 
-	SCU_YXP::TestClass tc1, tc2;
+
+
+	SCU_YXP::Widget tc1, tc2;
 	using std::swap; //这里确保调用最优版本的swap，优先寻找同一命名空间内的swap，没有声明的话，调用std内的
 	swap(tc1, tc2);
 
