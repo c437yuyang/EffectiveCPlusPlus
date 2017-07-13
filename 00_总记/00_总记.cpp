@@ -245,6 +245,8 @@ int main()
 // 3.non-virtual是希望子类不要去改写，就直接用父类的版本
 // 4.pure virtual父类也可以写实现代码，调用的时候Derived->Base::func()
 
+//35.
+
 //36.不要重新定义继承来的non-virtual函数
 
 //37.绝不重新定义继承而来的缺省参数值(只考虑带有缺省参数的virtual函数这种情况)
