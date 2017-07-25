@@ -3,10 +3,12 @@
 
 #include "stdafx.h"
 #include <iostream>
+#include <algorithm>
 #include <list>
+#include <iterator>
 using namespace std;
 
-//通不过，不知道为什么
+//这里实现的set其实也是一个unordered_set，没有排序，是按照插入顺序存储的
 template<class T>
 class Set {
 public:
@@ -14,6 +16,7 @@ public:
 	void insert(const T& item);
 	void remove(const T& item);
 	std::size_t size() const;
+	void output(ostream& out) const;
 private:
 	std::list<T> rep; //通过list实现Set,IsImplementedInTermsOf
 };
@@ -40,6 +43,20 @@ template<class T>
 std::size_t Set<T>::size() const 
 {
 	return rep.size();
+}
+
+template<class T>
+void Set<T>::output(ostream & out) const
+{
+	copy(rep.begin(), rep.end(), ostream_iterator<T>(out, " "));
+}
+
+template<class T>
+ostream & operator<<(ostream & out,Set<T> &rep)
+{
+	rep.output(out);
+	cout << endl;
+	return out;
 }
 
 
@@ -86,7 +103,13 @@ void Widget<T>::printInfo1(const T& value) const
 
 int main()
 {
-
+	Set<int> iset;
+	iset.insert(1);
+	iset.insert(1);
+	iset.insert(2);
+	iset.insert(3);
+	cout << iset.member(1) << endl;
+	cout << iset << endl;
 
 
 	system("pause");
