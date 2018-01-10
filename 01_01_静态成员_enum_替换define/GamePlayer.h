@@ -10,7 +10,7 @@ private:
 	//static int NumTurns1 = 1; //报错，带内类初始值的静态成员必须是常量
 	static int NumTurns1; //只能之后再次定义的时候再去赋值
 
-	int NumTurns2 = 3; //普通成员也可以直接有初始值
+	int NumTurns2 = 3; //普通成员也可以直接有初始值 C++11开始
 	int scores[NumTruns];
 
 };

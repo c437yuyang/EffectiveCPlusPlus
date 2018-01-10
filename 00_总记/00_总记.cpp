@@ -19,17 +19,21 @@ int main()
 
 //条款02：尽量以const enum inline 替换#define
 // 1.string 往往比 char* 合适
-// 尽量用const 变量替换宏定义，宏定义可能使目标码变大，并且编译报错的信息也不好找
-// 2.class专属常量，static const int NumTurns=5; 
+// 尽量用const变量替换宏定义，宏定义可能使目标码变大(代码中包含多份常量的值(比如浮点值))
+// 并且编译报错的信息(报的错是定义的实际的值，不是你定义的宏)也不好找
+// 2.宏是没有作用域的，而class专属常量可以有作用域，为了只有一份，加上static，static const int NumTurns=5; 
 // static确保只有一份，写作成员确保作用域，可加private等控制符
 // 但之后必须在实现文件里面进行定义（因为是静态变量）：
-// const int ClassName::NumTurns;(现在的新编译器通常都可以in-class初值设定，const static成员和普通成员可以，non-const static成员不行)
-// 参见01_01
-// 3.尽量以const常量替换#define，
+// const int ClassName::NumTurns;(现在的新编译器通常都可以in-class初值设定(整形的才可以，ints，chars，bools，并且不需要取它的地址才可以，需要取地址的话还是需要定义一下)
+//const static成员和普通成员可以，non-const static成员不行)
+
+// 3.
+// 3.尽量以const常量替换#define
 // 如：#define ASPECT_RATIO 1.653=>const double Aspect_Ratio=1.653
-// 类内无法in-class初值设定的时候，用enum实现
-//
-// 4.3.用inline-template可以实现对宏的替换
+// 如果编译器不支持Inclass初值设定(用于其他成员比如数组的大小的时候就需要这种用法),可以用enum替代
+// enum替代的好处是:如果你不想让别人用指针指向你的整数常量,enum可以实现这个约束并且不会出现内存分配,在这点上enum更像是define。
+// 参见01_01
+// 4.3.用inline-template函数可以实现对宏的替换，宏定义的函数更晦涩难懂
 // 参见01_02
 // 5.#include #ifdef 仍然无法被替代
 
@@ -38,14 +42,17 @@ int main()
 // 所以const int* a;和int const * a;都是指向常量
 // 
 // 2.mutable修饰的成员，即使在const成员函数内也可以被修改
-// 3.返回const，可以防止一些无意义的客户端错误(自定义数据类型可能被一些无意义的赋值操作，==写成了=)
+// 3.返回const 类型，可以防止一些无意义的客户端错误(自定义数据类型可能被一些无意义的赋值操作，==写成了=,比如(a+b)=c，如果这个表达式用在了if()比较里面就出大问题了)
 // 4.const成员函数的作用:(1):使接口容易理解，哪些接口会修改对象哪些不会(2):使得操作const对象成为可能，因为很多地方都是pass-by-reference-to-const
-// 5.两个成员函数如果只是常量性不同，可以被修改，const对象会自动调用const版本的函数
+// 5.两个成员函数如果只是常量性不同，可以被重载，const对象会自动调用const版本的函数
 // 6.const成员函数里面可以修改static成员以及mutable成员，参见03_01
-// 7.如果const和non-const版本代码重复，应该使non-const调用const版本实现。但反向做法是错误的。
-// 8.bitwise-constness 是任何一个比特都不能被改变，logical-constness意在可以改变其中一些，用mutable修饰
+// 7.如果const和non-const版本代码重复，应该使non-const调用const版本实现。
+// 其中也许需要用到两次转型操作，比如: const_cast<char &>(static_cast<const TextBlock&>(*this)[postition])
+// static_cast用来加上常量性从而调用const版本，const_cast用来去掉常量性实现non-const想要的操作
+// 但反向做法是错误的。
+// 8.bitwise-constness(编译器也是这样实施的) 是不能更改对象(所以static成员除外)的任何一个比特，logical-constness意在可以改变其中一些(客户端侦测不出来就可以了)，用mutable修饰(非static成员变量)
 
-//条款04:确保对象在使用前被初始化
+//条款04:确保对象在使用前被初始化(原则:确保每一个构造函数都将每一个成员初始化)
 // 1.使用成员初值列（member initialization list）进行初始化，这种方式会调用相应的构造函数版本
 // 初始化发生在进入构造函数体之前，如果存在多个构造函数，都有自己的初值列，会带来重复的情况下，
 // 可以选择将赋值和初始化代价一样的部分封装进一个Private函数来调用，避免重复
@@ -53,6 +60,7 @@ int main()
 // 初值列里面可以直接()，不带值，代表调用默认初始化
 // const和reference必须使用初值列初始化，不能被赋值
 // 初值列里初始化的顺序取决于成员在class中的声明顺序，和排列无关
+// C++中成员初始化次序总是相同的:base先，derived后，成员变量按照声明顺序初始化
 // 2. static对象的析构函数会在main结束时自动调用
 // 3.不同编译单元(源文件)的初始化顺序是不明确的，
 // 所以使用local-static对象替换non-local-static对象(global)，类似于单例模式
@@ -62,26 +70,28 @@ int main()
 //条款05:C++编译器默认生成的函数 
 // 1.声明一个空类(class A{};),编译器自动生成:(1):默认构造函数(2)拷贝构造(3)默认析构(4)拷贝赋值
 // 这些函数只有被调用，才会被编译器创建出来，这些函数都是public且inline的
-// 默认构造函数只有自己未显示定义构造函数才会生成
+// 默认构造函数只有自己未显式定义构造函数才会生成
+// 默认构造函数和析构函数 主要就是调用base classes和non-static 成员变量的构造和析构函数
+// 默认的copying函数就将对象的每一个non-static对象拷贝到目标对象，对于自定义类型，会调用该类型的copying函数，对于内置类型，会直接拷贝每一个bits
 // 2.当成员内部有ref和const的时候，
 // 如果不手动声明拷贝赋值，编译器不会自动生成拷贝赋值，因为这两种情况不允许更改
-// 3.如果base class将copy assignment声明为private,那么其derived class无法自动生成
+// 3.如果base class将copy assignment声明为private,那么其derived class无法自动生成（可以自己写）
 
 //条款06：若不想使用编译器自动生成的函数，应该明确拒绝
-// 1.将你不希望使用的函数声明为private并且没有实现
-// 2.可以写成继承自一个UnCopyable类，方便
+// 1.将你不希望使用的函数声明为private并且没有实现(STL中iostream就是这样防止拷贝的)
+// 2.可以写成继承自一个UnCopyable类，方便,参见06_01
 // 
 // 
 //条款07：为多态基类声明virtual析构函数
 // 1.polymorphic(带有多态性质的)base class都应该声明一个virtual析构函数，
 // 否则在出现多态性的时候(通过父类指针调用delete)，将会只删除基类部分,出现部分析构
 // 2.如果class带任何virtual函数，就应该声明一个virtual析构函数
-// 3.如果class不作为base class使用，就不应该有virtual析构函数，virtual函数会使得对象体积变大，并且不再具有移植性。
+// 3.如果class不作为base class使用，就不应该有virtual析构函数，virtual函数会使得对象体积变大，并且不再具有移植性(其他语言不具有vptr,虚函数表)。
 // 4.声明一个纯虚(virtual void xxx()=0)，可以让这个类无法实例化(abstract)
 // 5.纯虚析构函数必须有定义体(常常为空)，参见07
 
 //条款08:别在析构函数里抛异常
-// 1.如果被析构函数调用的函数可能抛出异常，则应该在析构函数里捕捉并吞掉，而不是继续让其传播
+// 1.如果被析构函数调用的函数可能抛出异常，则应该在析构函数里捕捉(catch)并吞掉(process)，而不是继续让其传播
 // 
 
 //条款09:不要在构造函数和析构函数里面调用virtual函数
@@ -92,6 +102,7 @@ int main()
 // 3.如果需要在构造函数里面调用某个函数，最好是调用static成员，会先于普通成员初始化
 
 //条款10:令operator=返回 reference to *this
+//几乎所有stl里的实现都遵循这个协议。
 
 //条款11:在operator=中处理自我赋值
 // 1.如a[i]=a[j],*px=*py，都可能出现自赋值的现象
@@ -101,6 +112,7 @@ int main()
 // 
 //
 //条款12:复制对象不要忘记其中任何一个成分
+// 自己实现了copying函数的情况下，如果有成份没有复制，编译器是不会发出警告的!
 // 1.子类的copying函数里面，不要忘记父类的成员的复制(但这些成员通常是private)，
 // 所以正确的做法是子类去调用父类的copying函数来实现复制
 // 2.不要让copy constructor去调用copy assignment，反过来也是一样的，
@@ -196,16 +208,17 @@ int main()
 // 3.循环的情况下，除非你知道"赋值"成本比"构造+析构"低，那么应该将定义写在循环内部 
 // 
 
-//条款27:尽量少做转型操作
-// 1.static_cast类似于旧式转型，但是不能去除常量性
-// 2.const_cast，移除常量性
+//条款27:尽量少做转型操作 (More EffectiveC++ M3.2)
+// 1.static_cast类似于旧式转型，但是不能去除常量性(只是不能去除底层const，顶层和普通的const是可以去除的)
+// 2.const_cast，用于移除常量性(可以移除所有的const,包括底层const)
 // 3.dynamic_cast实现向下安全转型，由父类指针向下转型
-// 4.reinterpret_cast实现低级转型，比如pointer to int 转 int
+// 4.reinterpret_cast实现低级转型，比如pointer to int 转 int或者int*直接转换成char *,转换后是很危险的
 // 5.以上四个，除了dynamic_cast旧式操作无法实现(也可以转，只是不检测是否可以正确的转型)
 // 旧式操作都可以实现
 // 6.注重效率的代码不要有dynamic_cast
 // 7.尽量将类型转换隐藏起来不让用户看到
 // 8.新式转型各有各的职能且容易辨识，建议使用新式转型。
+// 参见Test_Cpps 41
 
 //条款28:避免返回handles指向对象内部成分
 // 1.避免返回指向对象内部的reference,pointer,iterator等等
@@ -324,3 +337,10 @@ int main()
 // 2.泛化的copy构造函数和assignment不影响普通的(声明了泛化版本不声明普通版本，编译器还是会帮你生成)，必须同时定义
 
 //46.
+
+//52:placement new和placement delete
+// 1.正常形式的operator new和operator delete只包含一个参数,new(size_t),delete(void *rawMemory)
+// 2.如果在正常形式的基础上还有其他参数则是placement new和placement delete
+// 3.placement new和placement delete必须对应，delete的时候是调用的正常形式的delete
+// 4.不要让placement new掩盖了global空间的new
+// 5.解决方式是建立一个基类，包含所有正常形式的new，然后在子类里面使用using声明

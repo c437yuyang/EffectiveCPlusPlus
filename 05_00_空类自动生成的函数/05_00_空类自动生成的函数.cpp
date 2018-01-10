@@ -3,20 +3,21 @@
 
 #include "stdafx.h"
 
-class TestClass{}; //声明一个空类型
+//class TestClass{}; //声明一个空类型
 
 
 //等价于:
-//class TestClass{
-//public:
-//	TestClass();
-//	~TestClass();
-//	TestClass(const TestClass&);
-//	TestClass& operator=(const TestClass&);
-//};
+class TestClass
+{
+public:
+	TestClass();
+	~TestClass();
+	TestClass(const TestClass&);
+	TestClass& operator=(const TestClass&);
+};
 
 int main()
 {
-    return 0;
+	return 0;
 }
 

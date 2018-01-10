@@ -51,6 +51,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "44_01_非类型模板参数
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "45_01_智能指针隐式转换", "45_01_智能指针隐式转换\45_01_智能指针隐式转换.vcxproj", "{B2AA6560-DB2D-4182-B064-0CAAFE8AF4F3}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "11_01_在operator=中处理自赋值", "11_01_在operator=中处理自赋值\11_01_在operator=中处理自赋值.vcxproj", "{102C8DF7-DAAC-4A88-9962-1CE55BD1BE2F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "12_01_复制对象时勿忘了每一个成份", "12_01_复制对象时勿忘了每一个成份\12_01_复制对象时勿忘了每一个成份.vcxproj", "{6EA716EB-FF46-403C-85C9-65D99465CFFD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -251,6 +255,22 @@ Global
 		{B2AA6560-DB2D-4182-B064-0CAAFE8AF4F3}.Release|x64.Build.0 = Release|x64
 		{B2AA6560-DB2D-4182-B064-0CAAFE8AF4F3}.Release|x86.ActiveCfg = Release|Win32
 		{B2AA6560-DB2D-4182-B064-0CAAFE8AF4F3}.Release|x86.Build.0 = Release|Win32
+		{102C8DF7-DAAC-4A88-9962-1CE55BD1BE2F}.Debug|x64.ActiveCfg = Debug|x64
+		{102C8DF7-DAAC-4A88-9962-1CE55BD1BE2F}.Debug|x64.Build.0 = Debug|x64
+		{102C8DF7-DAAC-4A88-9962-1CE55BD1BE2F}.Debug|x86.ActiveCfg = Debug|Win32
+		{102C8DF7-DAAC-4A88-9962-1CE55BD1BE2F}.Debug|x86.Build.0 = Debug|Win32
+		{102C8DF7-DAAC-4A88-9962-1CE55BD1BE2F}.Release|x64.ActiveCfg = Release|x64
+		{102C8DF7-DAAC-4A88-9962-1CE55BD1BE2F}.Release|x64.Build.0 = Release|x64
+		{102C8DF7-DAAC-4A88-9962-1CE55BD1BE2F}.Release|x86.ActiveCfg = Release|Win32
+		{102C8DF7-DAAC-4A88-9962-1CE55BD1BE2F}.Release|x86.Build.0 = Release|Win32
+		{6EA716EB-FF46-403C-85C9-65D99465CFFD}.Debug|x64.ActiveCfg = Debug|x64
+		{6EA716EB-FF46-403C-85C9-65D99465CFFD}.Debug|x64.Build.0 = Debug|x64
+		{6EA716EB-FF46-403C-85C9-65D99465CFFD}.Debug|x86.ActiveCfg = Debug|Win32
+		{6EA716EB-FF46-403C-85C9-65D99465CFFD}.Debug|x86.Build.0 = Debug|Win32
+		{6EA716EB-FF46-403C-85C9-65D99465CFFD}.Release|x64.ActiveCfg = Release|x64
+		{6EA716EB-FF46-403C-85C9-65D99465CFFD}.Release|x64.Build.0 = Release|x64
+		{6EA716EB-FF46-403C-85C9-65D99465CFFD}.Release|x86.ActiveCfg = Release|Win32
+		{6EA716EB-FF46-403C-85C9-65D99465CFFD}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
