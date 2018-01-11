@@ -55,6 +55,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "11_01_在operator=中处理
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "12_01_复制对象时勿忘了每一个成份", "12_01_复制对象时勿忘了每一个成份\12_01_复制对象时勿忘了每一个成份.vcxproj", "{6EA716EB-FF46-403C-85C9-65D99465CFFD}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "14_01_资源管理类的copying行为", "14_01_资源管理类的copying行为\14_01_资源管理类的copying行为.vcxproj", "{5786DC11-B5D7-4C39-AB7F-0D6AF07CAF38}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "16_01_new和delete要成对", "16_01_new和delete要成对\16_01_new和delete要成对.vcxproj", "{6D995B79-FAD6-4052-9C22-FDAFA253DE56}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -271,6 +275,22 @@ Global
 		{6EA716EB-FF46-403C-85C9-65D99465CFFD}.Release|x64.Build.0 = Release|x64
 		{6EA716EB-FF46-403C-85C9-65D99465CFFD}.Release|x86.ActiveCfg = Release|Win32
 		{6EA716EB-FF46-403C-85C9-65D99465CFFD}.Release|x86.Build.0 = Release|Win32
+		{5786DC11-B5D7-4C39-AB7F-0D6AF07CAF38}.Debug|x64.ActiveCfg = Debug|x64
+		{5786DC11-B5D7-4C39-AB7F-0D6AF07CAF38}.Debug|x64.Build.0 = Debug|x64
+		{5786DC11-B5D7-4C39-AB7F-0D6AF07CAF38}.Debug|x86.ActiveCfg = Debug|Win32
+		{5786DC11-B5D7-4C39-AB7F-0D6AF07CAF38}.Debug|x86.Build.0 = Debug|Win32
+		{5786DC11-B5D7-4C39-AB7F-0D6AF07CAF38}.Release|x64.ActiveCfg = Release|x64
+		{5786DC11-B5D7-4C39-AB7F-0D6AF07CAF38}.Release|x64.Build.0 = Release|x64
+		{5786DC11-B5D7-4C39-AB7F-0D6AF07CAF38}.Release|x86.ActiveCfg = Release|Win32
+		{5786DC11-B5D7-4C39-AB7F-0D6AF07CAF38}.Release|x86.Build.0 = Release|Win32
+		{6D995B79-FAD6-4052-9C22-FDAFA253DE56}.Debug|x64.ActiveCfg = Debug|x64
+		{6D995B79-FAD6-4052-9C22-FDAFA253DE56}.Debug|x64.Build.0 = Debug|x64
+		{6D995B79-FAD6-4052-9C22-FDAFA253DE56}.Debug|x86.ActiveCfg = Debug|Win32
+		{6D995B79-FAD6-4052-9C22-FDAFA253DE56}.Debug|x86.Build.0 = Debug|Win32
+		{6D995B79-FAD6-4052-9C22-FDAFA253DE56}.Release|x64.ActiveCfg = Release|x64
+		{6D995B79-FAD6-4052-9C22-FDAFA253DE56}.Release|x64.Build.0 = Release|x64
+		{6D995B79-FAD6-4052-9C22-FDAFA253DE56}.Release|x86.ActiveCfg = Release|Win32
+		{6D995B79-FAD6-4052-9C22-FDAFA253DE56}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -119,23 +119,40 @@ int main()
 // 正确的做法是实现一个private的Init函数供两个copying函数调用
 // 
 //
-//条款13:以对象管理资源
+//条款13:以对象管理资源(RAII:Resources Acquisition Is Initialization,资源取得时机便是初始化时机)
+// 通常写代码，使用new后delete是不会造成内存泄漏的，但中间如果有其他控制流(如if goto continue break等，以及异常)跳出了当前顺序分支
+// 就可能出现不会执行到delete语句的了，就算你现在谨慎的编写程序不会出现上面的错误，但后面别人来维护的时候也许不会注意到这个问题，因此
+// 为了确保总是被释放，应该利用C++"析构函数自动调用机制"把资源放进对象中。
 // 1.auto_ptr可以利用元素的析构函数进行自动的内存管理，但是不适用于动态数组的管理
-// 2.auto_ptr和shared_ptr都是delete,而不是delete []
+// 2.auto_ptr和shared_ptr都是delete,而不是delete []，shared_ptr是一种RCSP(refercence-counting-smart-pointer，引用计数型智慧指针)
 // 3.为什么没有针对动态数组的auto_ptr? 因为vector和string总是可以替代动态数组
 // 4.工厂类的函数返回指针非常容易引起资源泄露，因为用户很容易忘记delete,因此需要更改，参见条款18
 
+//条款14:在资源管理类中小心copying行为
+// 参见14_01
+
+//条款15:在资源管理类中提供队原始资源的访问
+// 1.因为许多API要求直接访问原始资源(raw  resources)，因此你的RAII类必须提供一个访问原始资源的方法。
+// 2.shared_ptr的get()和auto_ptr的operator *和operator-> 都是类似的做法。
+// 3.访问原始资源的做法通常有两种:(1)提供类似get()类型的函数(2)提供隐式转换函数 operator RawPointerType() const {return _rawpointer};
+// (1)的使用更麻烦，每个地方都需要调用.get()，(2)的使用更方便，可以直接传入那些API，但是(2)会带来一些隐患，比如 RawPointerType p1 = RAIIObj; //会直接隐式转换过去
+//	RAII classes 不是为了封装某物而存在， 
 
 //条款16:new 和delete形式要一致
-// 1.尽量不要对数组进行typedef,比如 typedef string AddrLines[100]; 但是delete的时候，不知道是数组，就只用了delete
+// 1.如果new[] 了一个动态数组但是却只调用了delete ,则可能只有第一个对象调用了析构函数
+// 2.其实这个的道理就是,new[n] 的时候两步，第一部先分配内存，然后调用n次构造函数
+//						delete[n]的时候先调用n次析构函数，然后再释放内存
+// 动态数组的实现中，大多数编译器是使用了一个n在数组最前面，记录了当前数组的大小来实现的
+// 3.尽量不要对数组进行typedef,比如 typedef string AddrLines[100]; 但是delete的时候，不知道是数组，就只用了delete
 // 因为其实vector和string足以替代所有的数组操作
 //
 //
 //条款17:用独立语句将newed对象置入智能指针
+// shared_ptr<T> 的构造函数是explicit的，不能直接从RawPointer隐式转换到它
 // 1.对于processWidget(std::shared_ptr(new Widget()),priority()) 这个调用而言
 // std::shared_ptr(new Widget())和priority()的调用不一定谁先谁后，所以如果先new Widget(),
 // 然后priority(),但是报了异常的话，shared_ptr就没有管理到对象，就内存泄露了
-// 2.解决办法就是，把std::shared_ptr(new Widget())单独拿出来作为一行语句。
+// 2.解决办法就是，把std::shared_ptr(new Widget())单独拿出来作为一行语句(至少C++跨越语句的各项操作是没有重排的自由的)。
 
 //条款18:让接口容易被正确使用，不易被误用
 // 1.许多客户端错误可以用导入新类型的方式避免,参见18_01
