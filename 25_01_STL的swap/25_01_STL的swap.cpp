@@ -18,9 +18,7 @@ namespace SCU_YXP {
 			std::swap(pIvec, rhs.pIvec);
 		}
 	private:
-
 		vector<int> *pIvec;
-
 	};
 
 	Widget::Widget()
@@ -31,25 +29,19 @@ namespace SCU_YXP {
 	Widget::~Widget()
 	{
 	}
-
-	void swap(Widget &lhs, Widget &rhs) 
-	{
-		lhs.swap(rhs);
-	}
-
 }
 
-
-
-namespace std {
+namespace std { //这种做法就是stl里面所有容器的做法，提供自己特例版本的std::swap，然后成员内部提供swap接口
 	using SCU_YXP::Widget;
 	template<> //为std::swap针对Widget给出专门版本（特化）
 	void swap<Widget>(Widget &lhs, Widget &rhs)
 	{
-		lhs.swap(rhs);
+		lhs.swap(rhs); //再去调用接口实现交换(否则只能声明为friend来访问成员)
 	}
 }
 
+
+//看源码得知std::swap 现在还是利用了std::move来实现的(C++11的移动)
 
 int main()
 {
