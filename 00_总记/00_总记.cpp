@@ -254,9 +254,30 @@ int main()
 // 参见Test_Cpps 41
 
 //条款28:避免返回handles指向对象内部成分
+// 如果让成员函数返回了指向内部的handle
+// (1)破坏访问性，比如虽然是const 成员函数，但是返回了一个非const引用，客户拿到引用后，可以对const对象进行修改了
+// (2)出现dangling  handles(悬空号码牌)，比如const Point* pUpperLeft = &(boundingBox(*pgo).upperLeft())
+// 虽然boundingBox返回了一个const对象by value,之后通过upperleft拿到这个temp对象的左上角的引用再取地址
+// 但是问题在于随着作用域的结束，temp对象会析构，之后pUpperLeft拿到的就是一个野指针了。
 // 1.避免返回指向对象内部的reference,pointer,iterator等等
 // 2.成员函数如果返回成员的引用，最好是const的，这样才不会使访问控制修饰符失效
 // 
+
+//条款29:为"异常安全"而努力是值得的
+// 1.当异常被抛出时:带有异常安全性的函数会:
+//	不泄露任何资源，不允许数据破坏
+// 2.异常安全含函数提供一下三个保证之一:
+//	基本承诺:如果异常被抛出，程序内的任何事物仍然保持在有效状态下，没有数据会被破坏
+//	强烈保证:如果异常被抛出，程序状态不发生改变，如果函数成功就是完全成功，如果函数失败就会恢复到调用函数之前的状态。
+//	不抛掷保证:承诺绝对不抛出异常，比如各种内置类型的各种操作都提供nothrow保证。
+// 3.对于不具有异常安全性的代码进行修改使之具有基本的异常安全性通常用两步:
+//	(1) 使用对象管理资源(比如智能指针，可以防止资源泄露)
+//	(2) 调整语句顺序，(原则:不要为了表示某件事情发生而改变对象状态，除非那件事情真的发生了。)
+// 4.一个一般化的设计策略可以实现 强烈保证的异常安全性:copy and swap
+//	为你打算修改的对象做出一份副本，然后在那份副本上执行一切必要的修改，若有任何修改动作抛出异常，则原对象状态都没有发生改变
+//	待所有操作都成功后，再交换副本和原对象，用一个不抛出异常的swap来进行。
+// 5.异常安全性取决于所有部分中最差的那一部分，因此系统中有一个不具有异常安全性的函数，这个系统就不具备异常安全性。
+// 6.强烈异常安全性保证通常需要提供额外的时间和空间，因此需要视情况而定。
 
 //条款30:inline函数
 // 1.inline适用于小型，被调用频繁的函数身上，太大的函数目标码太大，会降低高速缓存命中率
@@ -269,29 +290,45 @@ int main()
 // 
 
 //31.将文件间的编译依存关系降到最低(其实就是.NET在学的降低不同层之间的耦合，通过接口)
-// 1.尽量用声明替换定义，就能够完成调用了已经
-// 2.#include <iosfwd>，这种xxxfwd的头文件里面只包含声明式
-// 3.使用Interface classes来制作handle class，调用的时候用智能指针便可实现内存自动管理
-// 4.要使Interface classes能够实例化，可以采用在这个接口内定义一个static的工厂性质的create方法返回这个接口的指针
+// 1.当修改一个类的实现部分(private成份)的时候，所有包含了这个class的文件都必须重新编译。但是如果是接口修改则不需要。
+// 2.不应该手动声明标准程序库，比如string，因为这个类其实不是class 是template，因此声明式其实很复杂，好的做法是直接去包含fwd的头文件。
+// 3.当使用一个对象的定义式的时候(Person p)，就需要这个对象的定义，因为这时编译器需要知道person占多大位置。但是如果是指针，就都是4个字节。(这也是java里面引用类型的实现方式。)
+// 4.将实现隐藏于一个指针背后，是常用的做法，使用PersonImpl类来放置实现部分，Person类只提供接口。这样就可以做到接口与实现分离.
+// 5.能够使用refercence和pointer的时候就不要使用objects,尽量用声明替换定义,就算是函数的参数用by value传入也可以(返回值也是一样，只需要客户端代码先曝光了对应的定义式即可)
+// 6.#include <iosfwd>，这种xxxfwd的头文件里面只包含声明式
+// 7.export关键字可以把template定义式和template实现式分开，但目前支持这个的编译器很少。
+// 8.接口类(使用implementation的类)被称为handler classes
+// 9.制作handle classes的第二种方法是使之成为abstract base class(Interface classes,就是java里面的interface了其实)
+//	要使Interface classes能够实例化，可以采用在这个接口内定义一个static的工厂性质的create方法返回这个接口的指针
 // ，后面再根据实现这个接口的derived class动态返回所需要对象
+// 10.使用impl这种实现，性能会受损失的，每次都必须通过implementation pointer取得对象数据并且还会承受动态内存分配的开销以及bad_allloc的异常性。
 
 //32.public继承一定要是is-a的关系
-// 1.public主张继承，能够实施于base class对象身上的每件事情都能实施于derived class身上
+// 1.public主张继承，能够实施于base class对象身上的每件事情都能实施于derived class身上，反之不行(这也是Liskov Substitution Principle,里式替换原则)
 // 2.class之间的关系:is-a has-a is-implemented-in-terms-of
 // 
 
 //33.避免隐藏继承而来的名称
 // 1.详情参见Test_Cpps_26_01
-// 2.如果正在使用public继承却有不继承那些重载函数，就是违背了is-a的关系
-// 3.using或者转交函数可以实现访问被屏蔽的父类函数
+// 2.如果正在使用public继承却有不继承那些重载函数(隐藏了)，就是违背了is-a的关系
+// 3.使用using Base::func()或者转交函数可以实现访问被屏蔽的父类函数
 
 //34.non-virtual pure-virtual impure virtual
 // 1.pure virtual是希望子类必须重新实现自己的版本（接口继承）
 // 2.impure virtual是希望子类接口继承并且有缺省版本
-// 3.non-virtual是希望子类不要去改写，就直接用父类的版本
+// 3.non-virtual是希望子类不要去改写，就直接用父类的版本（non-virtual成员函数所表现的是一种不变性(invariant)，凌驾于其特异性(specialization)之上的）
 // 4.pure virtual父类也可以写实现代码，调用的时候Derived->Base::func()
 
-//35.
+//35.考虑virtual函数以外的其他选择
+// 1.NVI(Non-Virtual Interface): public non-virtual成员函数调用private virtual函数实现
+// 这个方法也是Tmplate Method设计模式的一种表现形式，NVI的优点在于可以对内部的virtual函数调用前和调用后增加一些操作
+// 例如在调用前设定好场景，调用后清理场景。
+// 2.使用function pointers 实现strategy模式，每个人物的构造函数指向一个特定函数
+// 这个方法的优点是同一类型的不同实体之间可以有不同的健康计算函数并且运行期可以变更只需要提供一个setxxx就行
+// 3.使用function<>模板实现，和指针类似，优点是更加灵活，只需要传入兼容类型(返回值或参数可以隐式转换)的函数即可(上面用指针的方法需要完全一致)
+// 并且借用bind等方法，可以实现参数数目不同的兼容
+// 4.传统strategy模式，需要什么方法，就继承一个derived class即可。
+// 5.但是以上几种(除了NVI)替换方式，带来的缺点是，无法访问class的non-public成员。
 
 //36.不要重新定义继承来的non-virtual函数
 // 1.如果重新定义继承来的non-virtual函数的话，直观表现是
@@ -303,7 +340,7 @@ int main()
 // 1.virtual函数是动态绑定，而缺省参数则是静态绑定的
 // 所以:Base *p = new Derived(); 这种情况下，调用
 // p->VirtualFunction() , 函数是调用了子类的，但是缺省参数还是用的父类的
-// 2.就算是子类和父类的缺省参数想同也不要再重新写一次，第一是代码重复，
+// 2.就算是子类和父类的缺省参数相同也不要再重新写一次，第一是代码重复，
 // 第二是一旦父类改变，所有子类也得去变(才能保持一致)，耦合性太强
 
 
@@ -312,6 +349,7 @@ int main()
 // 2.has-a在应用域出现，is-implemented-in-terms-of发生于实现域
 // 标准库的set由平衡查找树实现，每个元素有三个指针，所以如果你的程序空间比速度更重要，需要自己实现一个set
 // 3.详情可看用STL的list来实现Set的做法
+// 4.不能根据list用public 继承来实现set，因为public 继承要求is a,但是list能够做的事set却不能。
 
 
 //派生类与基类的类型转换(来自c++primer15.2.3)
@@ -320,8 +358,8 @@ int main()
 // copying函数，故只处理了基类部分的成员。但是这里最后的效果看上去就像是执行了类型转换
 
 //派生访问说明符的作用(来自c++primer15.5)
-// 1.派生访问说明符的目的是控制派生类用户(包括派生类的派生类)对于基类成员的访问权限
-// 并不影响派生类的成员(本身)或友元对于基类的访问，这个访问只取决于基类成员的访问说明符
+// 1.派生访问说明符的目的是控制"派生类用户(包括派生类的派生类)"对于基类成员的访问权限
+// 并不影响"派生类的成员(本身)或友元"对于基类的访问，这个访问<只取决于基类成员的访问说明符>
 // 2.派生访问说明符还控制继承自派生类的新类的访问权限，比如如果一个成员int m1基类里面是public,但是是private继承，
 // 则在此派生类里面,m1是private的(但是仍然不影响派生类去访问这个成员，在类内),那么理所应当的，派生类的用户和派生类的派生类
 // 就无法访问m1了
@@ -329,7 +367,8 @@ int main()
 //39.private继承的使用
 // 1.private继承的时候，子类对象是无法转型成父类的，不是is-a的关系了
 // 2.private继承而来的父类的所有成员在子类中都是private的，无论之前是public or protected
-// 3.private继承只意味着希望使用父类中的实现，接口部分被抛弃(全是private)，只是为了使用父类中“已经备妥的某些特性”
+// 3.private继承只意味着希望使用父类中的实现(通常是为了复用代码)，接口部分被抛弃(全是private)
+// 只是为了使用父类中“已经备妥的某些特性”,而不是因为子类和父类有什么观念上的关系(比如public的is a关系)
 // 4.private继承意味着is-implemented-in-terms-of，但是能使用复合的时候使用复合，不要使用private继承
 // 5.当需要希望继承自此类的derived class 不能改写某个函数的时候(因为子类始终可以覆写或隐藏)，
 // 这时，可以通过把这个函数封装在一个private成员里面，子类就无法访问了,也就无法修改了
@@ -338,6 +377,7 @@ int main()
 // 因为一个空类型总是占一个字节(编译器默认分配一个char通常)，但是当这个空白类被用于组合的时候，
 // 由于前面可能有int或者其他类型的数据，最终内存对齐就不止占一个字节了，造成浪费，这时可以采用
 // private继承，就可以保证只占一个字节,并且也还是能够实现所需要的组合功能
+// 7.private继承用于  当derived class 需要访问protected base class的成员或者需要重新定义继承而来的virtual函数时会有用。
 
 //40.多重继承的使用
 // 1.尽量不要使用多重继承，会导致歧义以及对virtual继承的需要
@@ -345,11 +385,22 @@ int main()
 //  再private继承自某class来拿到一些有用的实现来帮助实现接口。
 
 //41.隐式接口和编译期多态
-// 1.参见41_01,给人一种像是在用脚本语言的感觉
+// 1.编译期多态(泛型)和运行期多态(继承)两种多态分别是:哪一个重载函数应该调用、哪一个virtual函数应该被绑定
+// 2.参见41_01,给人一种像是在用脚本语言的感觉
+// 3.对(clasees，就是非templates)而言接口是显式的，多态是通过virtual发生于运行期。
+// 4.对templates而言接口是隐式的，奠基于有效表达式，多台则是通过<template具现化和重载函数解析>发生于编译期
 
 //42.typename和class的区别
 // 1.使用template参数的时候，没有任何区别
-// 2.当标识嵌套从属类别的时候，必须加typename,才能判断是类别，而不是其静态成员或者是某个全局变量
+// 2.当标识嵌套从属类别(出现的情况比如:
+// template <typename T>
+// void Print2End(typename const C::const_iterator iter) //这个地方无从得知C::const_iterator到底是C内部的类型还是一个静态成员变量了(都是通过::来访问)，并且C++默认是不把它当做嵌套从属类型的，因此需要加上typename
+// {
+// 	typename C::const_iterator end; 
+// }
+//)的时候，必须加typename,才能判断是类别，而不是其静态成员或者是某个全局变量
+// 因为再加一个typename就太长了，因此还经常用在typedef的时候,比如:
+//typedef typename std::iterator_traits<IterTY>::value_type value_type;
 // 参见42，VS可以不用
 
 //43.如何处理模板化基类里的名称
@@ -364,16 +415,64 @@ int main()
 // 2.但是非类型的模板参数会导致代码膨胀，针对每个非类型参数都会产生一份新的二进制码
 // 3.通常这种非类型的参数尽量用成员变量代替
 // 4.类型模板参数也可能会造成代码膨胀，比如int和long其实是一份实现，(我相信VS是做了的)
+// 5.非类型模板参数带来的代码膨胀，通常都可以由函数参数或者class成员变量替换template参数。
+
 
 //45.成员函数模板可以用来接受所有兼容类型
-// 1.智能指针或者自己写的类型如果想实现像传统的普通指针一样支持隐式类型转换的话，可以运用成员模板来实现
+// 1.智能指针或者自己写的类型如果想实现像传统的普通指针一样支持隐式类型转换的话，可以运用成员模板来实现一个class 生成函数(泛化copy ctor)
+// 具体看45_01的例子
 // 2.泛化的copy构造函数和assignment不影响普通的(声明了泛化版本不声明普通版本，编译器还是会帮你生成)，必须同时定义
 
-//46.
+//46. 需要类型转换时请为模板定义非成员函数
+// 1.当条款24的rational类变成tempaltes的时候，外部的operator*也跟着变成template function，但是此时混合相乘，比如oneHalf * 1 却不能编译通过
+// 因为传递给operator*的第二实参是 int类型， template实参推导过程中不会出现先从int隐式转换到rational<int>的过程，再从Rational<int>推导出T是int
+// 这时可以利用将这个operator*的模板函数声明为friend来解决，因为friend函数在类内直接就被提前声明了，所以能够成功调用。
+// 2.在类内声明并且写函数体，会默认成为inline函数，要避免目标码太大的话，可以通过调用外部的辅助函数来实现。
+
+//47. 使用trait classes 表现类型信息
+// 1.stl的迭代器有五类:
+//	input output forward bidirectional RandomAccess
+// input output是单向只能向前并且只能一次一步，只能read or write
+// forward 可读可写，一次一步，=input+output
+// bidirectional 相当于 forward+向后移动
+// random 相当于bidirectional+移动n步
+// 2.traits_classes 使得类型相关信息在编译期可用
+// 3.实现编译期间的if else 可用函数重载来实现
+// 具体实现参考47_01
+
+//48. template元编程(template metaprogramming)
+// 1.TMP编程是用C++写成、执行于C++编译器内部的程序，它的输出就是从templates里面具现化出的代码
+// 2.TMP两个伟大贡献:
+//	(1)它让某些事情变得容易
+//  (2)将一些工作从运行期转移到编译期，使得错误可以在编译期提前发现，可执行文件边小，内存需求变少，但是编译时间变长。
+// 3.TMP是图灵完备语言，但是语法不同，比如用重载实现if else,递归实现循环，TMP是个函数式语言
+
+//49. 了解new-handler的行为
+// 参考49_01
+// 找到目前使用的new_handler 可以用 new_handler old = set_new_handler(NULL);来实现
+
+//50. 了解new和delete的合理替换时机
+// 1.什么时候会想自己来替换编译器提供的operator new和operator delete呢？
+// (1)用来检测运用上的错误。当出现overturns(写入到了分配区尾端之后)或underturns(之前)的情况下
+//		如果自定义一个operator news,便可以分配超额内存空间，用额外的空间充当"哨兵"配合和自定义的operator deletes实现检测
+// (2)获得效能提升。主要就是连续分配内存的时候，有大有小可能出现破碎问题，自定义的版本可以更加合理的利用破碎空间。
+// (3)收集使用上的统计数据。简单的说就是可以log，用来调试等等。
+// 参见50_01
+// 2.其他的用处:
+// (1)增加分配和归还速度(2)降低缺省内存管理器带来的空间额外开销(3)弥补缺省分配器中的非最佳对齐(4)将相关对象成簇集中(5)获得非传统行为。
+
+//51. 编写new和delete的时候需要遵守规范
+// 1.operator new 应该包含一个无穷循环，在其中尝试分配内存，如果不能满足要求则调用new_handler，并且还需要处理比正确大小更大的错误(子类来调用继承的版本)
+// 2.operator delete应该在收到null的时候什么都不做，也需要处理继承的版本。
 
 //52:placement new和placement delete
 // 1.正常形式的operator new和operator delete只包含一个参数,new(size_t),delete(void *rawMemory)
-// 2.如果在正常形式的基础上还有其他参数则是placement new和placement delete
-// 3.placement new和placement delete必须对应，delete的时候是调用的正常形式的delete
+// 2.如果在正常形式的基础上还有其他参数则是placement new和placement delete(这里说的是广义的placement xxx，其实一般来说Placement xxx都是特指:
+//void * operator new(size_t size, void * p) throw(); //
+//)
+// 3.placement new和placement delete必须形式上对应，delete的时候是调用的正常形式的delete，只有当报new一个对象的时候，两步，第一步分配内存如果成功
+// 第二部构造对象如果失败，就会调用对应形式的operator delete,否则找不到对应形式的话就会直接内存泄漏不调用任何delete.
 // 4.不要让placement new掩盖了global空间的new
 // 5.解决方式是建立一个基类，包含所有正常形式的new，然后在子类里面使用using声明
+
+

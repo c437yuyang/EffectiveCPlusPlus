@@ -19,9 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{B2AA6560-DB2D-4182-B064-0CAAFE8AF4F3}</ProjectGuid>
+    <ProjectGuid>{31BD2EC7-CB4E-443B-93F9-F3B2DBBC1E52}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>My45_01_智能指针隐式转换</RootNamespace>
+    <RootNamespace>My49_01_new_handler</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -145,12 +145,11 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="auto_ptr.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="45_01_智能指针隐式转换.cpp" />
+    <ClCompile Include="49_01_new_handler.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

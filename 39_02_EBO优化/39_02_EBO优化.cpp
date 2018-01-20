@@ -4,21 +4,25 @@
 #include "stdafx.h"
 #include <iostream>
 using namespace std;
-
-class Empty {
+//现实中不是这样的空白类型，是内部含有typedefs,enums,static member,non virtual函数等这样的类型
+class Empty
+{ //空白类型大小是1
 };
 
-class HoldsInt {
+class HoldsInt
+{ //本身是5，但是由于内存对齐变成了8
 	int num;
 	Empty empty;
 };
 
-class HoldsInt1 {
+class HoldsInt1
+{
 	Empty empty;
 	int num;
 };
 
-class HoldsIntUsePrivateInherit :private Empty{
+class HoldsIntUsePrivateInherit :private Empty
+{ //private继承可以解决这个问题
 	int num;
 };
 
@@ -36,6 +40,6 @@ int main()
 
 
 	system("pause");
-    return 0;
+	return 0;
 }
 

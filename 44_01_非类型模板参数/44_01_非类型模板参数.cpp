@@ -13,7 +13,6 @@ public:
 		cout << a << endl;
 		cout << n << endl;
 	}
-
 };
 
 
