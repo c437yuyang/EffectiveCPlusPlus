@@ -29,7 +29,7 @@ private:
 class PersonImpl; //使用impl类以及前置声明
 class Date;
 class Address;
-class   Person
+class Person
 {
 public:
 	Person(const std::string& name, const Date& birthray, const Address&addr);
@@ -40,11 +40,4 @@ public:
 private:
 	std::shared_ptr<PersonImpl> _pImpl; //具体的实现隐藏起来放在指针背后用来解除依赖性
 };
-
-
-#pragma endregion
-
-
-#pragma region MyRegion
-
 #pragma endregion

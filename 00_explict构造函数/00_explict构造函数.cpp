@@ -44,7 +44,7 @@ int main()
 	//printBInfo(28); //出错，不能从int到B转换
 	printBInfo(B(28)); //正确
 
-	printCInfo(28); //正确，可以转换
+	printCInfo(28); //正确，可以实现从int到C的隐式转换
 
 	//除非有一个很好的理由允许构造函数被用于隐式类型转换，就建议声明为explict的
 

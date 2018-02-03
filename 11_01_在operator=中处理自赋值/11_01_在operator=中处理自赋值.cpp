@@ -16,7 +16,8 @@ public:
 	{
 		if (this != &other) //处理自赋值
 			return *this;
-		_data = new T[other._size];//如果在这里有一个new 抛出了异常，那么Widget就会蚩尤一个指针指向一块被删除的内存区域(异常后系统会自动调用operator delete删除内存)，而这个时候原来的内存也已经被删除掉了
+		delete[] _data;
+		_data = new T[other._size];//如果在这里有一个new 抛出了异常，那么Widget就会持有一个指针指向一块被删除的内存区域(异常后系统会自动调用operator delete删除内存)，而这个时候原来的内存也已经被删除掉了
 		memcpy(_data, other._data, _size * sizeof(T));
 		_size = other._size;
 		return *this;
@@ -41,7 +42,7 @@ public:
 		T *pOrig = _data;
 		_data = new T[other._size];
 		memcpy(_data, other._data, _size * sizeof(T));
-		delete[]pOrig; //知道拷贝成功了才删掉原来的内存
+		delete[]pOrig; //直到拷贝成功了才删掉原来的内存
 		_size = other._size;
 		return *this;
 	}

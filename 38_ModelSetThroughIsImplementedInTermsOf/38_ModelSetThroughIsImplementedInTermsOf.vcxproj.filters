@@ -29,7 +29,7 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="38_ModelSetThroughIsImplementedInTermsOf.cpp">
+    <ClCompile Include="38_01_ModelSetThroughIsImplementedInTermsOf.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

@@ -8,7 +8,7 @@ using namespace std;
 template<class T>
 class NamedObj{
 public:
-	NamedObj(std::string &name, const T& value) :nameValue(name),value(objValue){};
+	NamedObj(std::string &name, const T& value) :nameValue(name), objValue(value){};
 	//²»ÉùÃ÷operator=
 private:
 	std::string &nameValue;

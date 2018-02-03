@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <list>
 #include <iterator>
-using namespace std;
+
 
 //这里实现的set其实也是一个unordered_set，没有排序，是按照插入顺序存储的
 template<class T>
@@ -48,17 +48,15 @@ std::size_t Set<T>::size() const
 template<class T>
 void Set<T>::output(ostream & out) const
 {
-	copy(rep.begin(), rep.end(), ostream_iterator<T>(out, " "));
+	std::copy(rep.begin(), rep.end(), ostream_iterator<T>(out, " "));
 }
 
-template<class T>
+template<class T> //同一命名空间内提供非成员函数调用成员函数
 ostream & operator<<(ostream & out,Set<T> &rep)
 {
 	rep.output(out);
-	cout << endl;
 	return out;
 }
-
 
 template <class T>
 class Widget
@@ -108,8 +106,8 @@ int main()
 	iset.insert(1);
 	iset.insert(2);
 	iset.insert(3);
-	cout << iset.member(1) << endl;
-	cout << iset << endl;
+	std::cout << iset.member(1) << std::endl;
+	std::cout << iset << std::endl;
 
 
 	system("pause");

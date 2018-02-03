@@ -33,12 +33,6 @@ namespace SCU_YXP
 	Widget<T>::~Widget()
 	{
 	}
-
-	//template<class T>
-	//void swap(Widget<T> &lhs, Widget<T> &rhs)
-	//{
-	//	lhs.swap(rhs);
-	//}
 }
 
 //错误的做法，只允许class templates 特例化，不允许function templates 特例化 (这是书上原话，是不是写反了?，总之这里就是如果类也是模板的话，就别去特例化了)
@@ -53,7 +47,7 @@ namespace SCU_YXP
 //	}
 //}
 
-//正确的做法是，在相同的命名空间添加一个non-member函数重载来调用member swap
+//正确的做法是，在<相同的命名空间>添加一个non-member函数重载来调用member swap
 namespace SCU_YXP
 {
 	template<class T>
@@ -64,10 +58,11 @@ namespace SCU_YXP
 	}
 }
 
+//koneing查找规则的例子
 template<class T>
-void func(Widget<T> &a,Widget<T> &b)
+void func(SCU_YXP::Widget<T> &a,SCU_YXP::Widget<T> &b)
 {
-	swap(a, b); //这里将能够调用SCU_YXP::swap，由于koening
+	swap(a, b); //这里将能够调用SCU_YXP::swap，由于koening查找规则
 }
 
 int main()
@@ -81,3 +76,5 @@ int main()
     return 0;
 }
 
+//koneing查找规则:
+//当某个函数的参数是一个类，那么在查找这个函数的名字时，编译器将也在包含参数类型的命名空间中查找

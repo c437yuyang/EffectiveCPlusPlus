@@ -24,7 +24,7 @@ int main()
 // 2.宏是没有作用域的，而class专属常量可以有作用域，为了只有一份，加上static，static const int NumTurns=5; 
 // static确保只有一份，写作成员确保作用域，可加private等控制符
 // 但之后必须在实现文件里面进行定义（因为是静态变量）：
-// const int ClassName::NumTurns;(现在的新编译器通常都可以in-class初值设定(整形的才可以，ints，chars，bools，并且不需要取它的地址才可以，需要取地址的话还是需要定义一下)
+// const int ClassName::NumTurns;(现在的新编译器通常都可以in-class初值设定(整形的才可以，ints，chars，bools，并且不需要取它的地址(没搞懂)才可以，需要取地址的话还是需要定义一下)
 //const static成员和普通成员可以，non-const static成员不行)
 
 // 3.
@@ -70,7 +70,7 @@ int main()
 //条款05:C++编译器默认生成的函数 
 // 1.声明一个空类(class A{};),编译器自动生成:(1):默认构造函数(2)拷贝构造(3)默认析构(4)拷贝赋值
 // 这些函数只有被调用，才会被编译器创建出来，这些函数都是public且inline的
-// 默认构造函数只有自己未显式定义构造函数才会生成
+// 默认构造函数只有自己未显式定义构造函数(包括拷贝构造，如果定义了拷贝构造，也不会自动生成default ctor了)才会生成
 // 默认构造函数和析构函数 主要就是调用base classes和non-static 成员变量的构造和析构函数
 // 默认的copying函数就将对象的每一个non-static对象拷贝到目标对象，对于自定义类型，会调用该类型的copying函数，对于内置类型，会直接拷贝每一个bits
 // 2.当成员内部有ref和const的时候，
@@ -86,7 +86,7 @@ int main()
 // 1.polymorphic(带有多态性质的)base class都应该声明一个virtual析构函数，
 // 否则在出现多态性的时候(通过父类指针调用delete)，将会只删除基类部分,出现部分析构
 // 2.如果class带任何virtual函数，就应该声明一个virtual析构函数
-// 3.如果class不作为base class使用，就不应该有virtual析构函数，virtual函数会使得对象体积变大，并且不再具有移植性(其他语言不具有vptr,虚函数表)。
+// 3.如果class不作为base class使用，就不应该有virtual析构函数，virtual函数会使得对象体积变大，并且不再具有移植性(其他语言不具有vptr,虚函数表,比如在More XXX中最后说到的写和C兼容的代码)。
 // 4.声明一个纯虚(virtual void xxx()=0)，可以让这个类无法实例化(abstract)
 // 5.纯虚析构函数必须有定义体(常常为空)，参见07
 
@@ -112,7 +112,7 @@ int main()
 // 
 //
 //条款12:复制对象不要忘记其中任何一个成分
-// 自己实现了copying函数的情况下，如果有成份没有复制，编译器是不会发出警告的!
+// 自己实现了copying函数的情况下，如果有成份没有复制，编译器是不会发出警告的(这就好像是编译器觉得你不信任它生成的版本，因此对你报复)!
 // 1.子类的copying函数里面，不要忘记父类的成员的复制(但这些成员通常是private)，
 // 所以正确的做法是子类去调用父类的copying函数来实现复制
 // 2.不要让copy constructor去调用copy assignment，反过来也是一样的，
@@ -136,7 +136,7 @@ int main()
 // 2.shared_ptr的get()和auto_ptr的operator *和operator-> 都是类似的做法。
 // 3.访问原始资源的做法通常有两种:(1)提供类似get()类型的函数(2)提供隐式转换函数 operator RawPointerType() const {return _rawpointer};
 // (1)的使用更麻烦，每个地方都需要调用.get()，(2)的使用更方便，可以直接传入那些API，但是(2)会带来一些隐患，比如 RawPointerType p1 = RAIIObj; //会直接隐式转换过去
-//	RAII classes 不是为了封装某物而存在， 
+//	RAII classes 不是为了封装某物而存在,它是为了确保资源释放会发生而存在的。
 
 //条款16:new 和delete形式要一致
 // 1.如果new[] 了一个动态数组但是却只调用了delete ,则可能只有第一个对象调用了析构函数
@@ -149,9 +149,9 @@ int main()
 //
 //条款17:用独立语句将newed对象置入智能指针
 // shared_ptr<T> 的构造函数是explicit的，不能直接从RawPointer隐式转换到它
-// 1.对于processWidget(std::shared_ptr(new Widget()),priority()) 这个调用而言
-// std::shared_ptr(new Widget())和priority()的调用不一定谁先谁后，所以如果先new Widget(),
-// 然后priority(),但是报了异常的话，shared_ptr就没有管理到对象，就内存泄露了
+// 1.对于processWidget(std::shared_ptr<Widget>(new Widget),priority()) 这个调用而言
+// std::shared_ptr(new Widget)和priority()的调用不一定谁先谁后，所以如果先new Widget,
+// 然后priority()，最后再执行shared_ptr的构造函数,但是priority()函数内部报了异常的话，shared_ptr就没有管理到对象，就内存泄露了
 // 2.解决办法就是，把std::shared_ptr(new Widget())单独拿出来作为一行语句(至少C++跨越语句的各项操作是没有重排的自由的)。
 
 //条款18:让接口容易被正确使用，不易被误用
@@ -159,10 +159,10 @@ int main()
 // 2.预防客户错误的另一个方法是，限制类型什么事可做，什么事不可做，比如加上const作为operator*的返回值，能够防止 a*b=c 这种操作。
 // 3.另一个一般性准则: "让你的types的行为与内置类型的一直"，因为客户已经对内置类型的操作很熟悉了，你的types如果是相同的表现用起来就会很方便
 // 这条准则的主要目的是为了接口的一致性，比如数组的长度叫size(),length(),count()等等。
-// 4.任何接口如果要求用户做某些事情，就有着"不正确使用"的倾向,比如返回RawPointer的工厂函数，客户也许会忘记delete或者delete超过一次。
+// 4.任何接口如果<要求用户做某些事情>，就有着"不正确使用"的倾向,比如返回RawPointer的工厂函数，客户也许会忘记delete或者delete超过一次。
 // 这时使工厂返回智能指针就先发制人了。
-// 除了上面这种错误，还可能设计者提供了自己的"资源释放函数,因为除了delete还有其他的操作"， 但是这样一来，客户也许还是会使用delete而忘记使用你提供的
-// 资源释放接口，因此给shared_ptr 指定一个deleter或许就成了最好的做法。
+// 除了上面这种错误，还可能设计者提供了自己的"资源释放函数,因为除了delete还有其他的操作"，但是这样一来，客户也许还是会使用delete而忘记使用你提供的
+// 资源释放接口，因此给<shared_ptr并且指定一个deleter>或许就成了最好的做法。
 // 5.使用shared_ptr还可以避免Cross-DLL problem
 
 //条款19:设计class犹如设计type
@@ -182,7 +182,7 @@ int main()
 // 2.有const的情况下可以防止对象被改变
 // 3.by-reference可防止slicing(对象切割)问题，
 // pass by value如果是子类对象传入基类形参的话，会被直接切割成子类对象
-// C++编译器底层，reference通常以指针实现出来
+// C++编译器底层，reference通常以指针实现出来,(这也是内置类型其实不如用by value传递的原因吧？)
 // 4.pass-by-value适用于:内置类型，stl迭代器,函数对象
 
 
@@ -214,9 +214,9 @@ int main()
 // 3.建议做成一个Unity类，提供静态函数去调用这些member函数，定义于同一个namespace里面
 // 4.同一个namespace，包含不同的头文件，针对不同的功能
 // 
-//条款24:如果需要为某个函数的所有参数进行类型转换，那么这个函数必须是non-member
+//条款24:如果需要为某个函数的所有参数(比如两个参数，三个...)进行(隐式)类型转换，那么这个函数必须是non-member
 // 令class支持隐式类型转换是个坏主意，但是当建立数值类型的class时有时是合理的
-// 1.结论:  能够执行隐式类型转换的条件:参数被置于参数列表内时
+// 1.结论:能够执行隐式类型转换的条件:参数被置于参数列表内时
 // 例子: oneHalf.operator*(2) //此时2在列表内，发生隐式转换(假设构造函数不是explicit)
 // 但是当2*oneHalf的时候，调用的是2.operator(oneHalf)(编译器也会继续寻找global空间里的operator*(2,oneHalf),不过这里没有)，
 // 显然int类型并没有一个从Rational类隐式转换而来的构造函数，就出错了
@@ -248,7 +248,7 @@ int main()
 // 4.reinterpret_cast实现低级转型，比如pointer to int 转 int或者int*直接转换成char *,转换后是很危险的
 // 5.以上四个，除了dynamic_cast旧式操作无法实现(也可以转，只是不检测是否可以正确的转型)
 // 旧式操作都可以实现
-// 6.注重效率的代码不要有dynamic_cast
+// 6.注重效率的代码不要有dynamic_cast,用到了RTTI(Runtime Type Information)
 // 7.尽量将类型转换隐藏起来不让用户看到
 // 8.新式转型各有各的职能且容易辨识，建议使用新式转型。
 // 参见Test_Cpps 41
@@ -256,12 +256,12 @@ int main()
 //条款28:避免返回handles指向对象内部成分
 // 如果让成员函数返回了指向内部的handle
 // (1)破坏访问性，比如虽然是const 成员函数，但是返回了一个非const引用，客户拿到引用后，可以对const对象进行修改了
-// (2)出现dangling  handles(悬空号码牌)，比如const Point* pUpperLeft = &(boundingBox(*pgo).upperLeft())
+// (2)出现dangling handles(悬空号码牌)，比如const Point* pUpperLeft = &(boundingBox(*pgo).upperLeft())
 // 虽然boundingBox返回了一个const对象by value,之后通过upperleft拿到这个temp对象的左上角的引用再取地址
 // 但是问题在于随着作用域的结束，temp对象会析构，之后pUpperLeft拿到的就是一个野指针了。
 // 1.避免返回指向对象内部的reference,pointer,iterator等等
 // 2.成员函数如果返回成员的引用，最好是const的，这样才不会使访问控制修饰符失效
-// 
+// 3.有时候还是必须这样做，比如string的operator[]
 
 //条款29:为"异常安全"而努力是值得的
 // 1.当异常被抛出时:带有异常安全性的函数会:
@@ -282,7 +282,7 @@ int main()
 //条款30:inline函数
 // 1.inline适用于小型，被调用频繁的函数身上，太大的函数目标码太大，会降低高速缓存命中率
 // 2.过度热衷inline会使程序体积庞大(inline就是在编译的时候，用函数体代替函数名(C#的CLI例外，是在运行时))
-// 3.编译器会拒绝太过于复杂的(带循环或者递归的)函数，以及所有的virtual函数
+// 3.编译器会拒绝(但是你仍然可以声明为inline,只是编译器不予理睬)太过于复杂的(带循环或者递归的)函数，以及所有的virtual函数
 // 因为virtual是动态绑定，编译器在编译的时候根本不知道调用哪个函数
 // 4.函数指针的inline不一定起作用
 // 5.inline函数缺点是，一旦函数被改变，所有用到此函数的程序都必须重新编译
@@ -292,7 +292,8 @@ int main()
 //31.将文件间的编译依存关系降到最低(其实就是.NET在学的降低不同层之间的耦合，通过接口)
 // 1.当修改一个类的实现部分(private成份)的时候，所有包含了这个class的文件都必须重新编译。但是如果是接口修改则不需要。
 // 2.不应该手动声明标准程序库，比如string，因为这个类其实不是class 是template，因此声明式其实很复杂，好的做法是直接去包含fwd的头文件。
-// 3.当使用一个对象的定义式的时候(Person p)，就需要这个对象的定义，因为这时编译器需要知道person占多大位置。但是如果是指针，就都是4个字节。(这也是java里面引用类型的实现方式。)
+// 3.当使用一个对象的定义式的时候(Person p)，就需要这个对象的定义，因为这时编译器需要知道person占多大位置。
+//	但是如果是指针，就都是4个字节。(这也是java里面引用类型的实现方式,C++的引用底层也是指针，因此类似)
 // 4.将实现隐藏于一个指针背后，是常用的做法，使用PersonImpl类来放置实现部分，Person类只提供接口。这样就可以做到接口与实现分离.
 // 5.能够使用refercence和pointer的时候就不要使用objects,尽量用声明替换定义,就算是函数的参数用by value传入也可以(返回值也是一样，只需要客户端代码先曝光了对应的定义式即可)
 // 6.#include <iosfwd>，这种xxxfwd的头文件里面只包含声明式
@@ -304,7 +305,7 @@ int main()
 // 10.使用impl这种实现，性能会受损失的，每次都必须通过implementation pointer取得对象数据并且还会承受动态内存分配的开销以及bad_allloc的异常性。
 
 //32.public继承一定要是is-a的关系
-// 1.public主张继承，能够实施于base class对象身上的每件事情都能实施于derived class身上，反之不行(这也是Liskov Substitution Principle,里式替换原则)
+// 1.public主张继承，能够实施于base class对象身上的每件事情都能实施于derived class身上，反之不行(这也是(ISP)Liskov Substitution Principle,里式替换原则)
 // 2.class之间的关系:is-a has-a is-implemented-in-terms-of
 // 
 
@@ -317,7 +318,7 @@ int main()
 // 1.pure virtual是希望子类必须重新实现自己的版本（接口继承）
 // 2.impure virtual是希望子类接口继承并且有缺省版本
 // 3.non-virtual是希望子类不要去改写，就直接用父类的版本（non-virtual成员函数所表现的是一种不变性(invariant)，凌驾于其特异性(specialization)之上的）
-// 4.pure virtual父类也可以写实现代码，调用的时候Derived->Base::func()
+// 4.pure virtual父类也可以写实现代码，调用的时候Derived->Base::func(),析构函数例外，是一定会被调用的，所以析构函数就算是纯虚也必须要有定义。
 
 //35.考虑virtual函数以外的其他选择
 // 1.NVI(Non-Virtual Interface): public non-virtual成员函数调用private virtual函数实现
@@ -332,7 +333,7 @@ int main()
 
 //36.不要重新定义继承来的non-virtual函数
 // 1.如果重新定义继承来的non-virtual函数的话，直观表现是
-// 对同一个对象会出现同一函数调用的时候因为不同的指针调用没有多态性，而出现不同的行为
+// 对同一个对象会出现同一函数调用的时候因为不同的指针调用没有多态性，而出现不同的行为(比如对于同一个对象，用自己类的指针和其父类的指针进行调用，将是不同的行为)
 // 2.更主要的是在理论层面，non-virtual函数体现的是一种不变性，凌驾于其特异性之上，
 // 如果直接non-virtual函数给改写了，这样违背了public继承的is-a的关系
 
@@ -345,10 +346,10 @@ int main()
 
 
 //38.Model has-a or is-implemented-in-terms-of through composition
-// 1.public 继承代表is-a，而复合意味着has-a或者is-implemented-in-terms-of
+// 1.public 继承代表is-a，而组合意味着has-a或者is-implemented-in-terms-of
 // 2.has-a在应用域出现，is-implemented-in-terms-of发生于实现域
-// 标准库的set由平衡查找树实现，每个元素有三个指针，所以如果你的程序空间比速度更重要，需要自己实现一个set
-// 3.详情可看用STL的list来实现Set的做法
+// 标准库的set由平衡查找树实现，每个元素有三个指针，所以如果你的程序空间比速度更重要，需要自己实现一个set而不是用组合或继承去实现
+// 3.详情可看用STL的list来实现Set的做法,38_01
 // 4.不能根据list用public 继承来实现set，因为public 继承要求is a,但是list能够做的事set却不能。
 
 
@@ -365,7 +366,7 @@ int main()
 // 就无法访问m1了
 
 //39.private继承的使用
-// 1.private继承的时候，子类对象是无法转型成父类的，不是is-a的关系了
+// 1.private继承的时候，子类对象是无法转型成父类的,(包括指针的隐式转型也是一样)，不是is-a的关系了，参见39_01
 // 2.private继承而来的父类的所有成员在子类中都是private的，无论之前是public or protected
 // 3.private继承只意味着希望使用父类中的实现(通常是为了复用代码)，接口部分被抛弃(全是private)
 // 只是为了使用父类中“已经备妥的某些特性”,而不是因为子类和父类有什么观念上的关系(比如public的is a关系)
@@ -376,8 +377,8 @@ int main()
 // 6.private继承还可以用在EBO(empty base optimization，空白基类最优化)中
 // 因为一个空类型总是占一个字节(编译器默认分配一个char通常)，但是当这个空白类被用于组合的时候，
 // 由于前面可能有int或者其他类型的数据，最终内存对齐就不止占一个字节了，造成浪费，这时可以采用
-// private继承，就可以保证只占一个字节,并且也还是能够实现所需要的组合功能
-// 7.private继承用于  当derived class 需要访问protected base class的成员或者需要重新定义继承而来的virtual函数时会有用。
+// private继承，就可以保证只占一个字节,并且也还是能够实现所需要的组合功能,参见39_02
+// 7.private继承用于 当derived class 需要访问protected base class的成员或者需要重新定义继承而来的virtual函数时会有用。参见39_03
 
 //40.多重继承的使用
 // 1.尽量不要使用多重继承，会导致歧义以及对virtual继承的需要

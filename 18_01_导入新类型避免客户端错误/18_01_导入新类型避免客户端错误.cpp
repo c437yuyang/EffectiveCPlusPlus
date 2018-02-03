@@ -36,7 +36,7 @@ public:
 	static Month Mar() { return Month(4); }
 	//...
 private:
-	explicit Month(int m) :_m(m) {}
+	explicit Month(int m) :_m(m) {}//构造函数私有，只能通过静态工厂函数来生成
 private:
 	int _m;
 };

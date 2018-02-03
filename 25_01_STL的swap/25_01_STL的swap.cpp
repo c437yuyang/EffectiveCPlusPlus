@@ -53,8 +53,6 @@ int main()
 	int j = 1;
 	std::swap(i, j); //可以直接实现交换，内部传的是引用
 
-
-
 	SCU_YXP::Widget tc1, tc2;
 	using std::swap; //这里确保调用最优版本的swap，优先寻找同一命名空间内的swap，没有声明的话，调用std内的
 	swap(tc1, tc2);

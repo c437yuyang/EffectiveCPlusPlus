@@ -22,11 +22,11 @@ int main()
 #endif
 	//int *pArr = new int[100];
 
-	//Widget *pWidgets = new Widget; //可以看到下面的内存泄露的大小就是结构的大小
+	//Widget *pWidgets = new Widget; //可以通过内存泄漏检测看到下面的内存泄露的大小就是结构的大小
 
 	//auto_ptr<Widget> pWidget_auto = 
 	//shared_ptr<Widget> pWidget = make_shared(new Widget());
-	auto_ptr<int> pArr1(allocIntMemory(100));
+	auto_ptr<int> pArr1(allocIntMemory(100)); //用智能指针接收工厂函数返回的指针
 
 	//cout << pArr1[1] << endl;
 

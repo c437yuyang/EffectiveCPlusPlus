@@ -6,7 +6,6 @@
 using namespace std;
 class TimeKeeper {
 public:
-
 	virtual ~TimeKeeper() { cout << "~TimeKeeper" << endl; }
 };
 
@@ -16,7 +15,6 @@ public:
 };
 
 class WaterClock :public TimeKeeper {};
-
 class Widget {
 public:
 	virtual ~Widget() = 0 {}; //纯虚析构函数的话，还是必须得有定义，因为肯定会被继承，

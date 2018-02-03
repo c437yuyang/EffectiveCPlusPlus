@@ -3,14 +3,14 @@
 
 #include "stdafx.h"
 
-
+class Timer;
 class Widget 
 {
 	
 
 private:
 
-	class WidgetTimer :public Timer
+	class WidgetTimer :public Timer {};
 
 	int id;
 
